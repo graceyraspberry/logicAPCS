@@ -1,12 +1,63 @@
 
 public class TruthColumn {
-	private boolean[] truthtable;
+	private boolean[] truthtable_;
 	
 	public static void main(String args[]){
 		TruthColumn myeval = new TruthColumn(4);
+		System.out.println("Testing AND");
 		boolean[] first = {true, true, false, false};
 		boolean[] second = {true, false, true, false};
 		System.out.println(printarr(myeval.and(first, second)));
+		
+		System.out.println("******************************************");
+		
+		System.out.println("Testing OR");
+		System.out.println(printarr(myeval.or(first, second)));
+		
+		System.out.println("******************************************");
+		
+		System.out.println("Testing NEGATE");
+		System.out.println(printarr(myeval.negate(first)));
+		
+		System.out.println("******************************************");
+		
+		System.out.println("Testing IMPLY");
+		System.out.println(printarr(myeval.imply(first, second)));
+		
+		System.out.println("******************************************");
+		
+		System.out.println("Testing BICONDITIONAL");
+		System.out.println(printarr(myeval.biconditional(first, second)));
+		
+		System.out.println("******************************************");
+		
+		System.out.println("Testing VALID - should be false");
+		printBool(myeval.valid());
+		
+		boolean[] allTrue = {true, true, true, true};
+		myeval.setTruthTable(allTrue);
+		
+		System.out.println(printBool(myeval.valid()));
+		
+		System.out.println("Testing VALID - should be true");
+		
+		System.out.println("******************************************");
+		
+		System.out.println("Testing Entails - should be false"); 
+		
+		TruthColumn table1 = new TruthColumn(4);
+		boolean[] a = {true, true, true, false};
+		table1.setTruthTable(a);
+		
+		System.out.println("******************************************");
+		
+		System.out.println(printBool(myeval.entails(a)));
+		
+		System.out.println("Testing Unsatisfiable - should be false"); 
+		boolean[] allFalse = {false, false, false, false};
+		System.out.println(printBool(myeval.unsatisfiable()));
+		
+		System.out.println("Testing Unsatisfiable - should be false"); 
 		
 	}
 	
@@ -15,8 +66,18 @@ public class TruthColumn {
 	 * @param length the size of the truthtable boolean array
 	 */
 	public TruthColumn(int length){
-		truthtable = new boolean[length];
+		truthtable_ = new boolean[length];
 	}
+	
+	/**
+	 * Mutator for ease of use in testing
+	 * @param arr the boolean values to be assigned to the truthtable
+	 */
+	public void setTruthTable(boolean[] arr){
+		truthtable_ = arr;
+	}
+	
+	//LOGICAL OPERATORS ON A SINGLE SENTENCE WITH TWO PROPOSITIONAL CONSTANTS
 	
 	/**
 	 * Returns a boolean array as a truth table for conducting propositional analysis with the "and" propositional constant
@@ -27,13 +88,13 @@ public class TruthColumn {
 	public boolean[] and(boolean[] a, boolean[] b){
 		for (int i = 0; i < a.length; i++){
 			if (a[i] && b[i]){
-				truthtable[i] = true;
+				truthtable_[i] = true;
 			} else {
-				truthtable[i] = false;
+				truthtable_[i] = false;
 			}	
 		}
-		return truthtable;
-	}
+		return truthtable_;
+	} 
 	
 	/**
 	 * Evaluates and propagates a truth table of values after evaluating the values in "or" operator sentence
@@ -44,12 +105,12 @@ public class TruthColumn {
 	public boolean[] or(boolean[] a, boolean[] b){
 		for (int i = 0; i < a.length; i++){
 			if (a[i] || b[i]){
-				truthtable[i] = true;
+				truthtable_[i] = true;
 			} else {
-				truthtable[i] = false;
+				truthtable_[i] = false;
 			}
 		}
-		return truthtable;
+		return truthtable_;
 	}
 	
 	/**
@@ -60,12 +121,12 @@ public class TruthColumn {
 	public boolean[] negate(boolean[] a){
 		for (int i = 0; i < a.length; i++){
 			if(!a[i]){
-				truthtable[i] = true;
+				truthtable_[i] = true;
 			} else {
-				truthtable[i] = false;
+				truthtable_[i] = false;
 			}
 		}
-		return truthtable;
+		return truthtable_;
 	}
 	/**
 	 * Evaluates and propagates a truth table of the value of an implication sentence
@@ -76,12 +137,12 @@ public class TruthColumn {
 	public boolean[] imply(boolean[] a, boolean[] b){
 		for (int i = 0; i < a.length; i++){
 			if (a[i] && !b[i]){
-				truthtable[i] = false;
+				truthtable_[i] = false;
 			} else {
-				truthtable[i] = true;
+				truthtable_[i] = true;
 			}
 		}
-		return truthtable;
+		return truthtable_;
 	}
 	
 	/**
@@ -93,13 +154,61 @@ public class TruthColumn {
 	public boolean[] biconditional(boolean[] a, boolean[] b){
 		for (int i = 0; i < a.length; i++){
 			if (a[i] == b[i]){
-				truthtable[i] = true;
+				truthtable_[i] = true;
 			} else {
-				truthtable[i] = false;
+				truthtable_[i] = false;
 			}
 		}
-		return truthtable;
+		return truthtable_;
 	}
+	
+	//EVALUATES THE PROPERTIES OF TWO LOGICAL SENTENCES AND THE RELATIONSHIP OF THEIR TRUTH ASSIGNMENTS
+
+	/**
+	 * Evaluates the equivalence between truthTable and otherTruthTable
+	 * @param otherTruthTable the set of truth values for a logical sentence
+	 * @return true when otherTruthTable iff every assignment that satisfies otherTruthTable also satisfies TruthTable
+	 */
+	public boolean equivalent(boolean[] otherTruthTable){
+		boolean equivalent = true;
+		for (int i = 0; i < otherTruthTable.length; i++){
+			if ((otherTruthTable[i] && !truthtable_[i]) || (!otherTruthTable[i] && truthtable_[i])){
+				truthtable_[i] = true;
+			} else {
+				truthtable_[i] = false;
+			}
+		}
+		return equivalent;
+	}
+	
+	/**
+	 * Returns logical entailment of the truthtable and the boolean[] otherTruthTable
+	 * @param otherTruthTable the set of truth values in which truthTable will be evaluated against for entailment
+	 * @return true if every truth assignment that satisfies truthtable also satisfies "a"
+	 */
+	public boolean entails(boolean[] otherTruthTable){
+		boolean entails = true;
+		for (int i = 0; i < otherTruthTable.length; i++){
+			if (truthtable_[i] && !otherTruthTable[i]) entails = false;
+		}
+		return entails;
+	}
+	
+	/**
+	 * Evaluates logical consistency between "a" and the values in truthtable
+	 * @param otherTruthTable the set of truth values
+	 * @return true iff there is a truth assignment that satisfies both "otherTruthTable" and truthtable
+	 */
+	public boolean consistent(boolean[] otherTruthTable){
+		boolean consistent = false;
+		for (int i = 0; i < otherTruthTable.length; i++){
+			if (truthtable_[i] && otherTruthTable[i]) consistent = true;
+		}
+		return consistent;
+	}
+	
+	
+	//TESTING LOGICAL PROPERTIES OF THE TRUTH TABLE (NO PARAMETERS)
 	
 	/**
 	 * Returns the logical property of validity of the statement based on the truth table values in truthtable
@@ -107,7 +216,7 @@ public class TruthColumn {
 	 */
 	public boolean valid(){
 		boolean valid = true;
-		for (boolean a:truthtable){
+		for (boolean a:truthtable_){
 			if(!a) valid = false;
 		}
 		return valid;
@@ -115,11 +224,11 @@ public class TruthColumn {
 	
 	/**
 	 * Returns the logical property of unsatisfiablity of the statement by examining the truthtable
-	 * @return true iff it is not satisfied by every truth assignment
+	 * @return true iff it is not satisfied by any truth assignment
 	 */
 	public boolean unsatisfiable(){
 		boolean unsatisfiable = true;
-		for (boolean a:truthtable){
+		for (boolean a:truthtable_){
 			if(a) unsatisfiable = false;
 		}
 		return unsatisfiable;
@@ -130,9 +239,9 @@ public class TruthColumn {
 	 * @return true iff there is some truth assignment that satisfies it and some truth assignment that falsifies
 	 */
 	public boolean contingent(){
-		boolean tpresent = false;
-		boolean fpresent = false;
-		for (boolean a:truthtable){
+		boolean tpresent = false; //is there a true present
+		boolean fpresent = false; //is there a false present
+		for (boolean a:truthtable_){
 			if (a) tpresent = true;
 			if (!a) fpresent = true;
 		}
@@ -143,49 +252,8 @@ public class TruthColumn {
 		}
 	}
 	
-	/**
-	 * Populates the truthtable with the values evaluated from the two sets of truth values based on equivalence
-	 * @param a the set of truth values for first propositional constant
-	 * @param b the set of truth values for second propositional constant
-	 * @return truthtable, the boolean array with the truth values evaluated from the given arrays
-	 */
-	public boolean[] equivalent(boolean[] a, boolean[] b){
-		for (int i = 0; i < a.length; i++){
-			if (a[i] == b[i]){
-				truthtable[i] = true;
-			} else {
-				truthtable[i] = false;
-			}
-		}
-		return truthtable;
-	}
 	
-	/**
-	 * Returns logical entailment of the truthtable and the boolean[] a
-	 * @param a the set of truth values in which entailment will be evaluated against
-	 * @return true iff every truth assignment that satisfies truthtable also satisfies "a"
-	 */
-	public boolean entails(boolean[] a){
-		boolean entails = true;
-		for (int i = 0; i < a.length; i++){
-			if (truthtable[i] && !a[i]) entails = false;
-			if (a[i] && !truthtable[i]) entails = false;
-		}
-		return entails;
-	}
-	
-	/**
-	 * Evaluates logical consistency between "a" and the values in truthtable
-	 * @param a the set of truth values
-	 * @return true iff there is a truth assignment that satisfies both "a" and truthtable
-	 */
-	public boolean consistent(boolean[] a){
-		boolean consistent = false;
-		for (int i = 0; i < a.length; i++){
-			if (truthtable[i] && a[i]) consistent = true;
-		}
-		return consistent;
-	}
+	//HELPER METHODS THAT PRINT BOOLEAN ARRAYS OR SINGLE BOOLEAN VALUES
 	
 	/**
 	 * Prints each element of boolean array with "true" and "false"
@@ -201,6 +269,21 @@ public class TruthColumn {
 			retval += " ";
 		}
 		return retval;
+	}
+	
+	/**
+	 * Prints boolean as string "true" and "false"
+	 * 
+	 * @param bool the truth to be printed
+	 * @return true or false
+	 */
+	public static String printBool(boolean bool){
+		if (bool) {
+			return "true";
+		}
+		else {
+			return "false";
+		}
 	}
 
 }
